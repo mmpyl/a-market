@@ -86,6 +86,48 @@ export function VendedorDashboard() {
 
   const total = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
 
+  const processPayment = async () => {
+    if (cartItems.length === 0) return;
+
+    try {
+      setLoading(true);
+
+      // Crear la venta
+      const ventaData = {
+        numero_venta: `VEN-${Date.now()}`,
+        tipo_comprobante: 'BOLETA',
+        total: total * 1.18, // Incluyendo IGV
+        igv: total * 0.18,
+        subtotal: total,
+      };
+
+      const venta = await api.post('/ventas', ventaData);
+
+      // Crear los detalles de la venta
+      const detallesPromises = cartItems.map(item =>
+        api.post('/venta-detalles', {
+          venta_id: venta.id,
+          producto_id: item.producto_id,
+          cantidad: item.cantidad,
+          precio_unitario: item.precio_unitario,
+          subtotal: item.subtotal,
+        })
+      );
+
+      await Promise.all(detallesPromises);
+
+      // Limpiar el carrito
+      setCartItems([]);
+      toast.success('Venta procesada exitosamente');
+
+    } catch (error) {
+      console.error('Error al procesar la venta:', error);
+      toast.error('Error al procesar la venta');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Búsqueda y Carrito */}
@@ -181,8 +223,13 @@ export function VendedorDashboard() {
             <span>Total:</span>
             <span>S/. {(total * 1.18).toFixed(2)}</span>
           </div>
-          <Button className="w-full" size="lg" disabled={cartItems.length === 0}>
-            Procesar Pago
+          <Button
+            className="w-full"
+            size="lg"
+            disabled={cartItems.length === 0 || loading}
+            onClick={processPayment}
+          >
+            {loading ? 'Procesando...' : 'Procesar Pago'}
           </Button>
         </CardContent>
       </Card>
