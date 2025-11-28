@@ -1,13 +1,13 @@
 'use client';
 
-import { useAuth } from '@/components/auth/AuthProvider';
-import { RoleNav } from '@/components/dashboard/role-nav';
-import { VendedorDashboard } from '@/components/dashboard/vendedor-dashboard';
-import { AlmacenDashboard } from '@/components/dashboard/almacen-dashboard';
-import { AdminDashboard } from '@/components/dashboard/admin-dashboard';
-import { AuditorDashboard } from '@/components/dashboard/auditor-dashboard';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useCallback } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useAuth } from '../components/auth/AuthProvider';
+import { AdminDashboard } from '../components/dashboard/admin-dashboard';
+import { AlmacenDashboard } from '../components/dashboard/almacen-dashboard';
+import { AuditorDashboard } from '../components/dashboard/auditor-dashboard';
+import { RoleNav } from '../components/dashboard/role-nav';
+import { VendedorDashboard } from '../components/dashboard/vendedor-dashboard';
 
 type RolSistema = 'vendedor' | 'almacenero' | 'administrador' | 'auditor';
 

@@ -1,6 +1,10 @@
 import { PostgrestClient } from "@supabase/postgrest-js";
 
-const POSTGREST_URL = process.env.POSTGREST_URL || "";
+const POSTGREST_URL = process.env.POSTGREST_URL;
+
+if (!POSTGREST_URL) {
+  throw new Error("Missing required environment variable: POSTGREST_URL");
+}
 const POSTGREST_SCHEMA = process.env.POSTGREST_SCHEMA || "public";
 const POSTGREST_API_KEY = process.env.POSTGREST_API_KEY || "";
 
