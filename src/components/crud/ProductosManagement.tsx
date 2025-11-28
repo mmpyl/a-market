@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,13 +10,21 @@ import { Plus, Search } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { Producto } from '@/lib/schemas';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export function ProductosManagement() {
   const [productos, setProductos] = useState<Producto[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProducto, setEditingProducto] = useState<Producto | null>(null);
   const [page, setPage] = useState(1);
+
+  // 🔍 buscador
+  const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounce(query, 400);
+
   const [formData, setFormData] = useState<Partial<Producto>>({
     estado: 'activo',
     stock_minimo: 10,
@@ -24,15 +32,20 @@ export function ProductosManagement() {
 
   useEffect(() => {
     fetchProductos();
-  }, [page]);
+  }, [page, debouncedQuery]);
 
   const fetchProductos = async () => {
     try {
       setLoading(true);
-      const data = await api.get(`/productos-crud?limit=20&offset=${(page - 1) * 20}`);
-      setProductos(data?.data || []);
-    } catch (error) {
-      toast.error('Error al cargar productos');
+
+      const res = await api.get(
+        `/productos-crud?limit=20&offset=${(page - 1) * 20}&search=${debouncedQuery}`
+      );
+
+      setProductos(res.data || []);
+      setTotal(res.total || 0);
+    } catch (error: any) {
+      toast.error(error?.message || 'Error al cargar productos');
     } finally {
       setLoading(false);
     }
@@ -55,8 +68,8 @@ export function ProductosManagement() {
       await api.delete(`/productos-crud/${id}`);
       toast.success('Producto eliminado');
       fetchProductos();
-    } catch (error) {
-      toast.error('Error al eliminar producto');
+    } catch (error: any) {
+      toast.error(error?.message || 'Error al eliminar producto');
     }
   };
 
@@ -69,34 +82,42 @@ export function ProductosManagement() {
         await api.post('/productos-crud', formData);
         toast.success('Producto creado');
       }
+
       setIsModalOpen(false);
       fetchProductos();
-    } catch (error) {
-      toast.error('Error al guardar producto');
+    } catch (error: any) {
+      toast.error(error?.message || 'Error al guardar producto');
     }
   };
 
-  const columns = [
-    { key: 'nombre' as const, label: 'Nombre' },
-    { key: 'codigo_barras' as const, label: 'Código' },
-    {
-      key: 'precio_venta' as const,
-      label: 'Precio',
-      render: (value: number) => `S/. ${value.toFixed(2)}`,
-    },
-    { key: 'stock' as const, label: 'Stock' },
-    {
-      key: 'estado' as const,
-      label: 'Estado',
-      render: (value: string) => (
-        <span className={`px-2 py-1 rounded text-sm ${
-          value === 'activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-        }`}>
-          {value}
-        </span>
-      ),
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      { key: 'nombre', label: 'Nombre' },
+      { key: 'codigo_barras', label: 'Código' },
+      {
+        key: 'precio_venta',
+        label: 'Precio',
+        render: (value: number) => `S/. ${value.toFixed(2)}`,
+      },
+      { key: 'stock', label: 'Stock' },
+      {
+        key: 'estado',
+        label: 'Estado',
+        render: (value: string) => (
+          <span
+            className={`px-2 py-1 rounded text-sm ${
+              value === 'activo'
+                ? 'bg-green-100 text-green-800'
+                : 'bg-red-100 text-red-800'
+            }`}
+          >
+            {value}
+          </span>
+        ),
+      },
+    ],
+    []
+  );
 
   return (
     <div className="space-y-6">
@@ -108,7 +129,12 @@ export function ProductosManagement() {
           <div className="flex gap-2">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-              <Input placeholder="Buscar productos..." className="pl-10" />
+              <Input
+                placeholder="Buscar productos..."
+                className="pl-10"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
             </div>
             <Button onClick={handleCreate} className="gap-2">
               <Plus className="w-4 h-4" />
@@ -125,7 +151,7 @@ export function ProductosManagement() {
             pagination={{
               page,
               pageSize: 20,
-              total: productos.length,
+              total, 
               onPageChange: setPage,
             }}
           />
@@ -150,33 +176,51 @@ export function ProductosManagement() {
             value={formData.codigo_barras || ''}
             onChange={(e) => setFormData({ ...formData, codigo_barras: e.target.value })}
           />
+
           <Input
             type="number"
             placeholder="Precio de costo"
-            value={formData.precio_costo || ''}
-            onChange={(e) => setFormData({ ...formData, precio_costo: parseFloat(e.target.value) })}
+            value={formData.precio_costo ?? ''}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                precio_costo: e.target.value ? parseFloat(e.target.value) : 0,
+              })
+            }
             required
             step="0.01"
           />
+
           <Input
             type="number"
             placeholder="Precio de venta"
-            value={formData.precio_venta || ''}
-            onChange={(e) => setFormData({ ...formData, precio_venta: parseFloat(e.target.value) })}
+            value={formData.precio_venta ?? ''}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                precio_venta: e.target.value ? parseFloat(e.target.value) : 0,
+              })
+            }
             required
             step="0.01"
           />
+
           <Input
             type="number"
             placeholder="Stock"
-            value={formData.stock || ''}
-            onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
+            value={formData.stock ?? ''}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                stock: e.target.value ? parseInt(e.target.value) : 0,
+              })
+            }
             required
           />
+
           <select
-            title="Estado del producto"
             value={formData.estado || 'activo'}
-            onChange={(e) => setFormData({ ...formData, estado: e.target.value as any })}
+            onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
             className="w-full px-3 py-2 border rounded-lg"
           >
             <option value="activo">Activo</option>
@@ -187,3 +231,4 @@ export function ProductosManagement() {
     </div>
   );
 }
+
