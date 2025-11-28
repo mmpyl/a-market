@@ -42,7 +42,6 @@
     "@radix-ui/react-tooltip": "1.1.6",
     "@supabase/postgrest-js": "^1.21.0",
     "@types/bcryptjs": "^3.0.0",
-    "autoprefixer": "^10.4.21",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -79,10 +78,12 @@
     "@types/react-dom": "^19",
     "@typescript-eslint/eslint-plugin": "^8.48.0",
     "@typescript-eslint/parser": "^8.48.0",
+    "autoprefixer": "^10.4.22",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
     "eslint-plugin-unused-imports": "^4.3.0",
-    "tailwindcss": "^4",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.17",
     "typescript": "^5"
   }
 }
