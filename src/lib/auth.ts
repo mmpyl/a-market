@@ -1,9 +1,18 @@
 import { SignJWT, jwtVerify } from "jose";
-import { AUTH_CODE, DURATION_EXPIRE_TIME } from "@/constants/auth";
-import { ACCESS_TOKEN_EXPIRE_TIME, CACHE_DURATION } from "@/constants/auth";
+import { AUTH_CODE, DURATION_EXPIRE_TIME, ACCESS_TOKEN_EXPIRE_TIME, CACHE_DURATION } from "@/constants/auth";
 import { User } from "@/types/auth";
 import CrudOperations from '@/lib/crud-operations';
-import { JWTPayload } from "./api-utils";
+
+// ==================== Types ====================
+
+export interface JWTPayload {
+  sub: string;
+  email: string;
+  role: string;
+  isAdmin: boolean;
+  iat: number;
+  exp: number;
+}
 
 interface CachedAuthCrud {
   usersCrud: CrudOperations;
@@ -13,14 +22,33 @@ interface CachedAuthCrud {
   createdAt: number;
 }
 
-// JWT config
+interface TokenVerificationResult {
+  valid: boolean;
+  code: string;
+  payload: JWTPayload | null;
+}
+
+// ==================== Configuration ====================
+
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+
+// Validar que JWT_SECRET exista
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+// ==================== Cache ====================
 
 let cachedAuthCrud: CachedAuthCrud | null = null;
 
 /**
- *crud instances of system auth operations
- *crud instances that are not operated by the system auth need to be created by oneself and this method is not allowed
+ * Obtiene instancias CRUD para operaciones de autenticación del sistema
+ * Las instancias se cachean para mejor rendimiento
+ * 
+ * IMPORTANTE: Este método solo debe usarse para operaciones de autenticación del sistema.
+ * Para operaciones CRUD normales, crear instancias propias de CrudOperations.
+ * 
+ * @returns Objeto con instancias CRUD para users, sessions, refresh_tokens y user_passcode
  */
 export async function authCrudOperations(): Promise<{
   usersCrud: CrudOperations;
@@ -29,9 +57,11 @@ export async function authCrudOperations(): Promise<{
   userPasscodeCrud: CrudOperations;
 }> {
   const now = Date.now();
-  if (!cachedAuthCrud || now - cachedAuthCrud.createdAt > CACHE_DURATION * 1000) {
-    const adminUserToken = await generateAdminUserToken();
+  const cacheExpired = !cachedAuthCrud || now - cachedAuthCrud.createdAt > CACHE_DURATION * 1000;
 
+  if (cacheExpired) {
+    const adminUserToken = await generateAdminUserToken();
+    
     cachedAuthCrud = {
       usersCrud: new CrudOperations("users", adminUserToken),
       sessionsCrud: new CrudOperations("sessions", adminUserToken),
@@ -40,27 +70,63 @@ export async function authCrudOperations(): Promise<{
       createdAt: now,
     };
   }
+
   return cachedAuthCrud;
 }
 
-// Create an admin token
-export async function generateAdminUserToken() {
-  const adminUserToken = await generateToken({
-    sub: "",
-    email: "",
-    role: process.env.SCHEMA_ADMIN_USER || "",
-  }, DURATION_EXPIRE_TIME);
+/**
+ * Limpia el cache de CRUD operations
+ * Útil para testing o cuando se necesita forzar regeneración
+ */
+export function clearAuthCrudCache(): void {
+  cachedAuthCrud = null;
+}
+
+// ==================== Token Generation ====================
+
+/**
+ * Genera un token de administrador del sistema
+ * Usado internamente para operaciones CRUD del sistema de autenticación
+ * 
+ * @returns Token JWT de administrador con máxima duración
+ */
+export async function generateAdminUserToken(): Promise<string> {
+  const adminRole = process.env.SCHEMA_ADMIN_USER;
+  
+  if (!adminRole) {
+    throw new Error('SCHEMA_ADMIN_USER environment variable is required');
+  }
+
+  const adminUserToken = await generateToken(
+    {
+      sub: "",
+      email: "",
+      role: adminRole,
+    },
+    DURATION_EXPIRE_TIME
+  );
 
   return adminUserToken;
 }
 
-// Generate access token
-export async function generateToken(user: Omit<User, "isAdmin">, expiresIn: number = ACCESS_TOKEN_EXPIRE_TIME): Promise<string> {
+/**
+ * Genera un token JWT para un usuario
+ * 
+ * @param user - Datos del usuario (sin isAdmin, se calcula automáticamente)
+ * @param expiresIn - Tiempo de expiración en segundos (default: ACCESS_TOKEN_EXPIRE_TIME)
+ * @returns Token JWT firmado
+ */
+export async function generateToken(
+  user: Omit<User, "isAdmin">,
+  expiresIn: number = ACCESS_TOKEN_EXPIRE_TIME
+): Promise<string> {
+  const adminRole = process.env.SCHEMA_ADMIN_USER;
+
   const payload: Omit<JWTPayload, "iat" | "exp"> = {
     sub: user.sub.toString(),
     email: user.email,
     role: user.role,
-    isAdmin: user.role === process.env.SCHEMA_ADMIN_USER,
+    isAdmin: user.role === adminRole,
   };
 
   const token = await new SignJWT(payload)
@@ -72,10 +138,23 @@ export async function generateToken(user: Omit<User, "isAdmin">, expiresIn: numb
   return token;
 }
 
-// Verify JWT token
+// ==================== Token Verification ====================
+
+/**
+ * Verifica la validez de un token JWT
+ * 
+ * @param token - Token JWT a verificar
+ * @returns Objeto con estado de validación, código y payload
+ * 
+ * Códigos posibles:
+ * - SUCCESS: Token válido
+ * - TOKEN_MISSING: Token no proporcionado
+ * - TOKEN_EXPIRED: Token expirado (puede renovarse)
+ * - TOKEN_INVALID: Token inválido (requiere re-login)
+ */
 export async function verifyToken(
   token?: string | null
-): Promise<{ valid: boolean; code: string; payload: JWTPayload | null }> {
+): Promise<TokenVerificationResult> {
   if (!token) {
     return {
       valid: false,
@@ -93,11 +172,55 @@ export async function verifyToken(
       payload: payload as unknown as JWTPayload,
     };
   } catch (error: any) {
-    // Expired - notify client to refresh token
+    // Token expirado - el cliente puede intentar renovar
     if (error.code === "ERR_JWT_EXPIRED") {
-      return { valid: false, code: AUTH_CODE.TOKEN_EXPIRED, payload: null };
+      return {
+        valid: false,
+        code: AUTH_CODE.TOKEN_EXPIRED,
+        payload: null,
+      };
     }
-    // All other cases treated as invalid signature - require re-login
-    return { valid: false, code: AUTH_CODE.TOKEN_MISSING, payload: null };
+
+    // Firma inválida u otro error - requiere re-login
+    console.error('Token verification error:', error);
+    return {
+      valid: false,
+      code: AUTH_CODE.TOKEN_INVALID || AUTH_CODE.TOKEN_MISSING,
+      payload: null,
+    };
   }
 }
+
+/**
+ * Verifica si un token es de administrador
+ * 
+ * @param token - Token JWT a verificar
+ * @returns true si el token pertenece a un administrador
+ */
+export async function isAdminToken(token: string): Promise<boolean> {
+  const result = await verifyToken(token);
+  return result.valid && result.payload?.isAdmin === true;
+}
+
+/**
+ * Extrae el payload de un token sin verificar su validez
+ * ADVERTENCIA: Solo usar para debugging o logging, no para autorización
+ * 
+ * @param token - Token JWT
+ * @returns Payload decodificado o null si falla
+ */
+export function decodeTokenUnsafe(token: string): JWTPayload | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    const payload = JSON.parse(atob(parts[1]));
+    return payload as JWTPayload;
+  } catch {
+    return null;
+  }
+}
+
+// ==================== Exports ====================
+
+export type { TokenVerificationResult, CachedAuthCrud };
