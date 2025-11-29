@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { InventarioManagement } from '@/components/crud/InventarioManagement';
+import { InventarioManagement } from '@/components/inventario/InventarioManagement';
 import { Package, TrendingDown, Info } from 'lucide-react';
 
 type TabValue = 'inventario' | 'movimientos';

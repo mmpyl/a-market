@@ -1,4 +1,4 @@
-# Ad Market - Sistema de Gestión de Mercado
+# A Market - Sistema de Gestión de Mercado
 
 Un sistema integral de gestión empresarial construido con **Next.js 15**, **TypeScript**, **React 19** y **Tailwind CSS**. Diseñado para administrar productos, inventario, ventas, auditoría y usuarios con roles diferenciados.
 
@@ -50,8 +50,8 @@ Un sistema integral de gestión empresarial construido con **Next.js 15**, **Typ
 ### 1. Clonar el Repositorio
 
 ```bash
-git clone https://github.com/mmpyl/ad-market.git
-cd ad-market
+git clone https://github.com/mmpyl/a-market.git
+cd a-market
 ```
 
 ### 2. Instalar Dependencias

@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 // Rutas que requieren autenticación
 const protectedRoutes = [
@@ -34,6 +34,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next|static|favicon.ico|.*\\.(css|js|svg|png|jpg|jpeg|gif)).*)",
+    "/((?!_next|static|favicon.ico).*)",
   ],
 };

@@ -1,9 +1,8 @@
-import { NextRequest } from 'next/server';
 import { requestMiddleware } from '@/lib/api-utils';
-import { createSuccessResponse, createErrorResponse } from '@/lib/create-response';
+import { createErrorResponse, createSuccessResponse } from '@/lib/create-response';
 import { hashString } from '@/lib/server-utils';
-import { authCrudOperations } from '@/lib/auth';
 import { userRegisterCallback } from '@/lib/user-register';
+import { NextRequest } from 'next/server';
 
 export const POST = requestMiddleware(async (request: NextRequest) => {
   try {
@@ -12,7 +11,7 @@ export const POST = requestMiddleware(async (request: NextRequest) => {
 
     // -----------------------------
     // VALIDACIONES BÁSICAS
-    ------------------------------
+    // -----------------------------
     if (!email || !password) {
       return createErrorResponse({
         errorMessage: 'Email and password are required',
@@ -28,14 +27,12 @@ export const POST = requestMiddleware(async (request: NextRequest) => {
       });
     }
 
-    const { usersCrud } = await authCrudOperations();
+    const usersCrud = new CrudOperations('usuarios');
 
     // -----------------------------
     // VERIFICAR USUARIO EXISTENTE
-    ------------------------------
-    const existingUser = await usersCrud.findMany({
-      where: { email }
-    });
+    // -----------------------------
+    const existingUser = await usersCrud.findMany({ email });
 
     if (existingUser?.length) {
       return createErrorResponse({
@@ -46,7 +43,7 @@ export const POST = requestMiddleware(async (request: NextRequest) => {
 
     // -----------------------------
     // CREAR USUARIO
-    ------------------------------
+    // -----------------------------
     const hashedPassword = await hashString(password);
 
     const user = await usersCrud.create({
@@ -56,7 +53,7 @@ export const POST = requestMiddleware(async (request: NextRequest) => {
 
     // -----------------------------
     // CREAR PERFIL / CALLBACK
-    ------------------------------
+    // -----------------------------
     await userRegisterCallback({
       userId: user.id, // más explícito
       email: user.email,

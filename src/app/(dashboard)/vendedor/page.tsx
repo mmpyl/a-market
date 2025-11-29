@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { VentasManagement } from '@/components/crud/VentasManagement';
+import { VentasManagement } from '@/components/ventas/VentasManagement';
 import { 
   ShoppingCart, 
   Receipt, 

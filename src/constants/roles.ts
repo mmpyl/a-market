@@ -1,0 +1,14 @@
+// constants/roles.ts
+export const ROLES = {
+  ADMIN: 'admin',
+  ALMACEN: 'almacen',
+  VENDEDOR: 'vendedor',
+  AUDITORIA: 'auditoria'
+} as const;
+
+export const PERMISSIONS = {
+  PRODUCTOS_CREATE: [ROLES.ADMIN, ROLES.ALMACEN],
+  PRODUCTOS_READ: [ROLES.ADMIN, ROLES.ALMACEN, ROLES.VENDEDOR, ROLES.AUDITORIA],
+  VENTAS_CREATE: [ROLES.VENDEDOR],
+  AUDITORIA_VIEW: [ROLES.ADMIN, ROLES.AUDITORIA]
+};

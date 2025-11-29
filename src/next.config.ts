@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Access-Control-Allow-Origin",
-            value: "*", // 生产环境应限制为特定域名
+            value: "http://localhost:3000", // Restrict to localhost for development; update for production
           },
           {
             key: "Access-Control-Allow-Methods",
@@ -30,11 +30,11 @@ const nextConfig: NextConfig = {
           },
           {
             key: "X-Frame-Options",
-            value: "ALLOWALL", // 允许同源iframe嵌入，如需允许所有域名可改为 "ALLOWALL" 或删除此头
+            value: "SAMEORIGIN", // Allow only same-origin iframes
           },
           {
             key: "Content-Security-Policy",
-            value: "frame-ancestors 'self' *", // 允许iframe嵌入，'self'表示同源，*表示所有域名
+            value: "frame-ancestors 'self'", // Allow only same-origin iframes
           },
         ],
       },
