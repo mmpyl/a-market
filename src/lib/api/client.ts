@@ -36,7 +36,7 @@ let refreshPromise: Promise<boolean> | null = null;
  */
 async function refreshToken(): Promise<boolean> {
   try {
-    const response = await fetch('/next-api/auth/refresh', {
+    const response = await fetch('/api/auth/refresh', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ function redirectToLogin(): void {
 
 /**
  * Realiza una petición HTTP a la API con manejo automático de refresh token
- * @param endpoint - Ruta del endpoint (sin /next-api)
+ * @param endpoint - Ruta del endpoint (sin /api)
  * @param options - Opciones de fetch
  * @param isRetry - Indica si es un reintento después de refresh
  * @returns Promise<T> - Datos de respuesta tipados
@@ -88,11 +88,27 @@ async function apiRequest<T = any>(
   isRetry = false
 ): Promise<T> {
   try {
-    const response = await fetch(`/next-api${endpoint}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
+    // Obtener el token de las cookies para incluirlo en el header Authorization
+    const getCookie = (name: string) => {
+      if (typeof document === 'undefined') return '';
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift() || '';
+      return '';
+    };
+
+    const accessToken = getCookie('access_token');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options?.headers as Record<string, string> || {}),
+    };
+
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
+    const response = await fetch(`/api${endpoint}`, {
+      headers,
       credentials: 'include',
       ...options,
     });
@@ -227,3 +243,4 @@ export const api = {
 
 export { ApiError };
 export type { ApiResponse };
+

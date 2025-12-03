@@ -52,7 +52,7 @@ function analyzeCodeQuality() {
     { path: 'lib/api-client.ts', type: 'utility' },
     { path: 'components/auth/AuthProvider.tsx', type: 'component' },
     { path: 'components/dashboard/admin-dashboard.tsx', type: 'component' },
-    { path: 'app/next-api/auth/login/route.ts', type: 'route' },
+    { path: 'app/api/auth/login/route.ts', type: 'route' },
     { path: '__tests__/integration.test.ts', type: 'test' },
   ];
   

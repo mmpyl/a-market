@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -19,16 +19,19 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
+// ✅ Metadata (SIN viewport ni themeColor)
 export const metadata: Metadata = {
   title: "Sistema Minimarket",
   description: "Sistema integral de gestión para minimarket con módulos por rol",
   keywords: ["minimarket", "gestión", "inventario", "ventas", "POS"],
   authors: [{ name: "Tu Empresa" }],
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
+};
+
+// ✅ Viewport separado (NUEVO - Next.js 14+)
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },

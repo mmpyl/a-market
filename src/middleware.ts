@@ -21,7 +21,7 @@ const publicRoutes = [
 ];
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get("token")?.value;
+  const token = req.cookies.get("access_token")?.value;
   const { pathname } = req.nextUrl;
 
   // Verifica si la ruta es pública

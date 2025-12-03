@@ -1,6 +1,6 @@
-import { NextRequest } from 'next/server';
-import { createSuccessResponse, createErrorResponse } from '@/lib/create-response';
+import { createErrorResponse, createSuccessResponse } from '@/lib/create-response';
 import { decodeAccessToken } from '@/lib/jwt-utils'; // lo explicaré abajo
+import { NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 

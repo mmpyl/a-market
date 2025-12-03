@@ -188,7 +188,7 @@ function main() {
   }
   
   // Verificar login/route.ts
-  const loginRoutePath = path.join(srcPath, 'app', 'next-api', 'auth', 'login', 'route.ts');
+  const loginRoutePath = path.join(srcPath, 'app', 'api', 'auth', 'login', 'route.ts');
   if (checkFileContains(loginRoutePath, 'getDevUsers')) {
     log('  ✓ login/route.ts usa getDevUsers()', colors.green);
     results.passed.push('login/route.ts integra dev-users correctamente');

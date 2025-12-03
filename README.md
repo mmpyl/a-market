@@ -120,7 +120,7 @@ src/
 │   ├── almacen/                 # Dashboard almacén
 │   ├── vendedor/                # Dashboard vendedor
 │   ├── auditoria/               # Dashboard auditoría
-│   └── next-api/                # Rutas API
+│   └── api/                # Rutas API
 │       ├── auth/                # Autenticación
 │       ├── productos/           # Gestión de productos
 │       ├── inventario/          # Gestión de inventario
@@ -181,36 +181,36 @@ pnpm lint
 ## 🔌 API Endpoints
 
 ### Autenticación
-- `POST /next-api/auth/login` - Login
-- `POST /next-api/auth/register` - Registro de usuario
-- `POST /next-api/auth/logout` - Logout
-- `POST /next-api/auth/refresh` - Refrescar JWT
-- `POST /next-api/auth/reset-password` - Recuperar contraseña
-- `GET /next-api/auth/user` - Obtener usuario actual
-- `POST /next-api/auth/google-login` - Login con Google
+- `POST /api/auth/login` - Login
+- `POST /api/auth/register` - Registro de usuario
+- `POST /api/auth/logout` - Logout
+- `POST /api/auth/refresh` - Refrescar JWT
+- `POST /api/auth/reset-password` - Recuperar contraseña
+- `GET /api/auth/user` - Obtener usuario actual
+- `POST /api/auth/google-login` - Login con Google
 
 ### Productos
-- `GET /next-api/productos` - Listar productos
-- `POST /next-api/productos-crud` - Crear producto
-- `PUT /next-api/productos-crud/[id]` - Actualizar producto
-- `DELETE /next-api/productos-crud/[id]` - Eliminar producto
+- `GET /api/productos` - Listar productos
+- `POST /api/productos-crud` - Crear producto
+- `PUT /api/productos-crud/[id]` - Actualizar producto
+- `DELETE /api/productos-crud/[id]` - Eliminar producto
 
 ### Inventario
-- `GET /next-api/inventario` - Estado del inventario
-- `POST /next-api/movimientos-inventario` - Registrar movimiento
+- `GET /api/inventario` - Estado del inventario
+- `POST /api/movimientos-inventario` - Registrar movimiento
 
 ### Ventas
-- `GET /next-api/ventas` - Listar ventas
-- `POST /next-api/ventas-crud` - Crear venta
-- `GET /next-api/venta-detalles` - Detalles de ventas
+- `GET /api/ventas` - Listar ventas
+- `POST /api/ventas-crud` - Crear venta
+- `GET /api/venta-detalles` - Detalles de ventas
 
 ### Usuarios
-- `GET /next-api/usuarios-crud` - Listar usuarios
-- `POST /next-api/add-user` - Agregar usuario
-- `PUT /next-api/usuarios-crud/[id]` - Actualizar usuario
+- `GET /api/usuarios-crud` - Listar usuarios
+- `POST /api/add-user` - Agregar usuario
+- `PUT /api/usuarios-crud/[id]` - Actualizar usuario
 
 ### Auditoría
-- `GET /next-api/auditoria` - Historial de auditoría
+- `GET /api/auditoria` - Historial de auditoría
 
 ## 👥 Roles y Permisos
 
@@ -226,7 +226,7 @@ pnpm lint
 ### Crear un nuevo endpoint API
 
 ```typescript
-// src/app/next-api/mi-ruta/route.ts
+// src/app/api/mi-ruta/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {

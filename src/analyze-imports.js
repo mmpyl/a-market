@@ -49,7 +49,7 @@ function analyzeImports() {
     'components/auth/AuthProvider.tsx',
     'lib/api-client.ts',
     'components/dashboard/admin-dashboard.tsx',
-    'app/next-api/auth/login/route.ts',
+    'app/api/auth/login/route.ts',
     'app/layout.tsx',
     '__tests__/integration.test.ts',
   ];
