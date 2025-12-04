@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
 import { requestMiddleware } from "@/lib/api-utils";
 import { authCrudOperations } from "@/lib/auth";
-import { pbkdf2Hash } from "@/lib/server-utils";
 import { createLogoutResponse } from "@/lib/create-response";
+import { pbkdf2Hash } from "@/lib/server-utils";
+import { NextRequest } from "next/server";
 
 export const POST = requestMiddleware(
   async (request: NextRequest, context: { token?: string; payload?: any }) => {
@@ -15,7 +15,7 @@ export const POST = requestMiddleware(
         return createLogoutResponse();
       }
 
-      const refreshToken = request.cookies.get("refresh-token")?.value;
+      const refreshToken = request.cookies.get("refresh_token")?.value;
       if (!refreshToken) {
         return createLogoutResponse();
       }

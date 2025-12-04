@@ -1,13 +1,13 @@
-import { NextRequest } from "next/server";
-import { requestMiddleware, getCookies } from "@/lib/api-utils";
-import { createErrorResponse, createAuthResponse } from "@/lib/create-response";
-import { generateToken, authCrudOperations } from "@/lib/auth";
+import { AUTH_CODE, REFRESH_TOKEN_EXPIRE_TIME } from "@/constants/auth";
+import { getCookies, requestMiddleware } from "@/lib/api-utils";
+import { authCrudOperations, generateToken } from "@/lib/auth";
+import { createAuthResponse, createErrorResponse } from "@/lib/create-response";
 import { generateRandomString, pbkdf2Hash } from "@/lib/server-utils";
-import { REFRESH_TOKEN_EXPIRE_TIME, AUTH_CODE } from "@/constants/auth";
+import { NextRequest } from "next/server";
 
 export const POST = requestMiddleware(async (request: NextRequest) => {
   try {
-    const [refreshToken] = getCookies(request, ["refresh-token"]);
+    const [refreshToken] = getCookies(request, ["refresh_token"]);
 
     if (!refreshToken) {
       return createErrorResponse({

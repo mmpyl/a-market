@@ -116,7 +116,7 @@ async function apiRequest<T = any>(
     const result: ApiResponse<T> = await response.json();
 
     // Token faltante - redirigir inmediatamente
-    if ([AUTH_CODE.TOKEN_MISSING].includes(result.errorCode || '')) {
+    if (result.errorCode === AUTH_CODE.TOKEN_MISSING) {
       redirectToLogin();
       throw new ApiError(401, result.errorMessage || 'Token missing', result.errorCode);
     }
