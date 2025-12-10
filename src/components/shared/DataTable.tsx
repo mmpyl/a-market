@@ -42,7 +42,7 @@ interface DataTableProps<T extends { id?: number | string }> {
 export function DataTable<T extends { id?: number | string }>({
   data = [],
   columns,
-  isLoading,
+  loading,
   onEdit,
   onDelete,
   onView,
