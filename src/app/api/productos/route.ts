@@ -12,7 +12,10 @@ export const GET = requestMiddleware(async (request, context) => {
     // context.payload contiene: { sub, email, role, isAdmin }
 
     const productosCrud = new CrudOperations('productos', context.token!);
+    
+    // Obtener todos los productos
     const productos = await productosCrud.getAll();
+    
 
     return responseSuccess(productos, 'Productos obtenidos correctamente');
   } catch (error) {
@@ -39,3 +42,4 @@ export const POST = requestMiddleware(async (request, context) => {
     return responseError(500, 'Error al crear producto');
   }
 });
+

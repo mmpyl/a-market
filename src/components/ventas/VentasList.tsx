@@ -100,16 +100,16 @@ export function VentasManagement() {
   // Columnas optimizadas con useMemo
   const columns = useMemo(() => {
     return [
-      { key: 'numero_venta' as const, label: 'Número' },
-      { key: 'fecha' as const, label: 'Fecha' },
+      { key: 'numero_venta' as const, header: 'Número' },
+      { key: 'fecha' as const, header: 'Fecha' },
       {
         key: 'total' as const,
-        label: 'Total',
+        header: 'Total',
         render: (value: number) => `S/. ${value.toFixed(2)}`,
       },
       {
         key: 'estado' as const,
-        label: 'Estado',
+        header: 'Estado',
         render: (value: string) => (
           <span
             className={`px-2 py-1 rounded text-sm font-medium ${
@@ -158,7 +158,7 @@ export function VentasManagement() {
           <DataTable
             data={ventas}
             columns={columns}
-            isLoading={loading}
+            loading={loading}
             onEdit={handleEdit}
             onDelete={handleDelete}
             pagination={{
@@ -214,7 +214,11 @@ export function VentasManagement() {
             required
           />
 
+          <label htmlFor="estado" className="block text-sm font-medium">
+            Estado
+          </label>
           <select
+            id="estado"
             value={formData.estado || 'pendiente'}
             onChange={(e) =>
               setFormData({ ...formData, estado: e.target.value as any })

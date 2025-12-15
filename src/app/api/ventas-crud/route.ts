@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import CrudOperations from '@/lib/crud-operations';
-import { ventaSchema, ventaPatchSchema } from '@/lib/schemas';
 import { createErrorResponse } from '@/lib/create-response';
-import { generarUBL, generarPDFVenta, enviarSunat } from '@/lib/facturacion-sunat';
+import CrudOperations from '@/lib/crud-operations';
+import { enviarSunat, generarPDFVenta, generarUBL } from '@/lib/facturacion-sunat';
+import { ventaPatchSchema, ventaSchema } from '@/lib/schemas';
+import { NextRequest, NextResponse } from 'next/server';
 
 // GET: Listado de ventas con filtros
 export async function GET(request: NextRequest) {
@@ -22,13 +22,13 @@ export async function GET(request: NextRequest) {
     if (fecha_inicio && fecha_fin) filters.fecha = { gte: fecha_inicio, lte: fecha_fin };
 
     const crud = new CrudOperations('ventas', token);
-    const ventas = await crud.findMany(filters, {
+    const ventas = await crud.findManyWithCount(filters, {
       limit,
       offset,
       orderBy: { column: 'fecha', direction: 'desc' },
     });
 
-    return NextResponse.json({ success: true, data: ventas, pagination: { limit, offset, total: ventas.length } });
+    return NextResponse.json({ success: true, data: { rows: ventas.data, total: ventas.total } });
   } catch (error: any) {
     console.error('Error fetching ventas:', error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
@@ -104,8 +104,8 @@ export async function DELETE(request: NextRequest) {
     if (!existing) return createErrorResponse({ errorMessage: 'Venta no encontrada', status: 404 });
 
     // Validar dependencias
-    const detalles = await crud.findRelation(id, 'venta_detalles');
-    const pagos = await crud.findRelation(id, 'venta_pagos');
+    const detalles = await crud.findMany({ venta_id: id });
+    const pagos = await crud.findMany({ venta_id: id });
     if (detalles.length > 0 || pagos.length > 0 || existing.estado_sunat === 'ENVIADO') {
       return createErrorResponse({ errorMessage: 'No se puede eliminar la venta por dependencias o envío a SUNAT', status: 403 });
     }

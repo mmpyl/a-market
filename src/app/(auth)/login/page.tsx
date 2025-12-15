@@ -6,6 +6,7 @@ import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useState } from "react";
 
+
 enum ModeEnum {
   LOGIN = "LOGIN",
   REGISTER = "REGISTER",
@@ -58,62 +59,30 @@ function LoginPageContent() {
   const handleBackToLogin = useCallback(() => {
     setMode(ModeEnum.LOGIN);
   }, []);
-
   return (
-    <div
-      className="relative flex justify-center items-center min-h-screen overflow-hidden"
-      style={{
-        background:
-          "radial-gradient(1200px 800px at 10% -10%, rgba(56,189,248,0.18), transparent 60%), " +
-          "radial-gradient(900px 700px at 90% 0%, rgba(167,139,250,0.16), transparent 55%), " +
-          "radial-gradient(700px 500px at 50% 110%, rgba(248,113,113,0.12), transparent 50%), " +
-          "linear-gradient(180deg, #0b0f1a 0%, #0a0a0a 100%)",
-      }}
-    >
+    <div className={`relative flex justify-center items-center min-h-screen overflow-hidden `}>
       {/* Grid pattern overlay */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.06]"
-        style={{
-          backgroundImage:
-            "radial-gradient(rgba(255,255,255,0.9) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
+        className={`pointer-events-none absolute inset-0 opacity-[0.06] `}
       />
 
       {/* Gradient orbs */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-24 -left-24 h-[42rem] w-[42rem] rounded-full blur-3xl opacity-0 animate-fade-in"
-        style={{
-          background:
-            "radial-gradient(closest-side, rgba(56,189,248,0.35), transparent)",
-          animationDelay: "0.1s",
-          animationFillMode: "forwards",
-        }}
+        className={`pointer-events-none absolute -top-24 -left-24 h-[42rem] w-[42rem] rounded-full blur-3xl opacity-0 animate-fade-in `}
       />
       
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-32 -right-24 h-[36rem] w-[36rem] rounded-full blur-3xl opacity-0 animate-fade-in"
-        style={{
-          background:
-            "radial-gradient(closest-side, rgba(167,139,250,0.32), transparent)",
-          animationDelay: "0.2s",
-          animationFillMode: "forwards",
-        }}
+        className={`pointer-events-none absolute -bottom-32 -right-24 h-[36rem] w-[36rem] rounded-full blur-3xl opacity-0 animate-fade-in `}
       />
       
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-10 left-1/2 -translate-x-1/2 h-[28rem] w-[28rem] rounded-full blur-3xl opacity-0 animate-fade-in"
-        style={{
-          background:
-            "radial-gradient(closest-side, rgba(248,113,113,0.22), transparent)",
-          animationDelay: "0.3s",
-          animationFillMode: "forwards",
-        }}
+        className={`pointer-events-none absolute -bottom-10 left-1/2 -translate-x-1/2 h-[28rem] w-[28rem] rounded-full blur-3xl opacity-0 animate-fade-in `}
       />
+      
 
       {/* Form container with fade transition */}
       <div className="relative z-10 w-full max-w-md px-4">
@@ -151,11 +120,4 @@ export default function LoginPage() {
   );
 }
 
-// Agregar estilos de animación en tu CSS global o tailwind.config.js
-// @keyframes fade-in {
-//   from { opacity: 0; }
-//   to { opacity: 1; }
-// }
-// .animate-fade-in {
-//   animation: fade-in 1s ease-out;
-// }
+

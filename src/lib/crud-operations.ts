@@ -34,6 +34,7 @@ type UpdateData = Record<string, any>;
  * const users = await usersCrud.findMany({ role: "vendedor" }, { limit: 10 });
  */
 export default class CrudOperations {
+  getAll: any;
   constructor(
     private tableName: string,
     private token?: string

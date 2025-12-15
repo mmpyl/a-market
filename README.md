@@ -1,353 +1,103 @@
-# A Market - Sistema de Gestión de Mercado
+# A-Market: Sistema de Punto de Venta
 
-Un sistema integral de gestión empresarial construido con **Next.js 15**, **TypeScript**, **React 19** y **Tailwind CSS**. Diseñado para administrar productos, inventario, ventas, auditoría y usuarios con roles diferenciados.
+A-Market es una aplicación web moderna diseñada como un sistema de punto de venta (POS), gestión de inventario y roles. Está construida con Next.js y sigue las mejores prácticas de desarrollo, incluyendo una arquitectura basada en el App Router.
 
-## 📋 Tabla de Contenidos
+## Tecnologías Principales
 
-- [Características](#características)
-- [Requisitos Previos](#requisitos-previos)
-- [Instalación](#instalación)
-- [Configuración](#configuración)
-- [Estructura del Proyecto](#estructura-del-proyecto)
-- [Uso](#uso)
-- [API Endpoints](#api-endpoints)
-- [Roles y Permisos](#roles-y-permisos)
-- [Desarrollo](#desarrollo)
-- [Tecnologías](#tecnologías)
-- [Licencia](#licencia)
+- **Framework**: [Next.js](https://nextjs.org/) (App Router)
+- **Contenerización**: [Docker](https://www.docker.com/)
+- **Lenguaje**: [TypeScript](https://www.typescriptlang.org/)
+- **Base de Datos**: PostgreSQL
+- **UI**: [React](https://react.dev/)
+- **Estilos**: [Tailwind CSS](https://tailwindcss.com/)
+- **Componentes UI**: [Shadcn/UI](https://ui.shadcn.com/)
+- **Autenticación**: Basada en JWT (JSON Web Tokens)
+- **Testing**: Pruebas End-to-End con [Playwright](https://playwright.dev/)
 
-## ✨ Características
+## Primeros Pasos (Método Recomendado: Docker)
 
-### Módulos Principales
-- **🔐 Autenticación**: Login con Google, registro, recuperación de contraseña, JWT
-- **👥 Gestión de Usuarios**: CRUD de usuarios con diferentes roles (Admin, Vendedor, Auditor, Almacén)
-- **📦 Inventario**: Control de stock, movimientos de inventario, variantes de productos
-- **🛍️ Productos**: Gestión completa de catálogo, categorías, proveedores
-- **💳 Ventas**: Registro de ventas, detalles, métodos de pago, seguimiento
-- **📊 Auditoría**: Registro de cambios y acciones del sistema
-- **🎨 Dashboard**: Dashboards personalizados por rol
-- **🌓 Tema**: Soporte para modo claro y oscuro
+La forma más sencilla de levantar el proyecto localmente es usando Docker y Docker Compose. Esto creará contenedores para la aplicación y la base de datos PostgreSQL.
 
-### Características Técnicas
-- Autenticación con **JWT** y **Google OAuth**
-- Base de datos **PostgreSQL** con **Supabase** y **PostgREST**
-- Validación con **Zod**
-- Componentes UI con **Radix UI** + **Tailwind CSS**
-- Formularios con **React Hook Form**
-- Toasts y notificaciones con **Sonner** y **React Hot Toast**
-- Escaneo de códigos (QR/Barras)
-- API REST moderna
+### 1. Prerrequisitos
 
-## 📋 Requisitos Previos
+-   [Docker](https://docs.docker.com/get-docker/) y [Docker Compose](https://docs.docker.com/compose/install/) instalados.
 
-- **Node.js** 18+ o **pnpm** (gestor de paquetes)
-- **PostgreSQL** 12+ (o cuenta en Supabase)
-- **npm** o **pnpm** instalado
-- Variables de entorno configuradas
+### 2. Configuración del Entorno
 
-## 🚀 Instalación
+Abre el archivo `docker-compose.yml` y ajusta las variables de entorno para el servicio `app` si necesitas añadir claves de API u otros secretos.
 
-### 1. Clonar el Repositorio
+```yaml
+services:
+  app:
+    # ...
+    environment:
+      DATABASE_URL: "postgresql://user:password@db:5432/amarket"
+      # Añade aquí otras variables de entorno que tu aplicación necesite
+      # JWT_SECRET: "your-super-secret-jwt-key"
+```
+
+### 3. Levantar los Contenedores
+
+Ejecuta el siguiente comando en la raíz del proyecto:
 
 ```bash
-git clone https://github.com/mmpyl/a-market.git
-cd a-market
+docker-compose up --build
 ```
 
-### 2. Instalar Dependencias
+La aplicación estará disponible en `http://localhost:3000` y la base de datos en el puerto `5432`.
 
-```bash
-pnpm install
-# o
-npm install
-```
+## Configuración Manual (Alternativa)
 
-### 3. Configurar Variables de Entorno
+Si prefieres no usar Docker, puedes seguir estos pasos.
 
-Crea un archivo `.env.local` en la raíz del proyecto:
+### 1. Prerrequisitos
 
-```env
-# Supabase Configuration
-POSTGREST_URL=https://your-project.supabase.co/rest/v1
-POSTGREST_SCHEMA=public
-POSTGREST_API_KEY=your-anon-key
+-   Node.js (versión 20 o superior)
+-   npm (o un gestor de paquetes equivalente)
+-   Una instancia de PostgreSQL en ejecución.
 
-# JWT Configuration
-JWT_SECRET=your-super-secret-jwt-key-here
-SCHEMA_ADMIN_USER=administrador
+### 2. Instalación y Configuración
 
-# Hash Configuration
-HASH_SALT_KEY=your-hash-salt-key
+1.  **Instala dependencias**:
+    ```bash
+    npm install
+    ```
+2.  **Configura el entorno**:
+    Copia `.env.example` a `.env` y rellena las variables, incluyendo la URL de conexión a tu base de datos.
+    ```bash
+    copy .env.example .env
+    ```
+3.  **Inicializa la base de datos**:
+    Ejecuta el script `db/init.sql` en tu instancia de PostgreSQL para crear las tablas necesarias.
 
-# Email Configuration (Resend)
-RESEND_API_KEY=your-resend-api-key
+4.  **Ejecuta la aplicación**:
+    ```bash
+    npm run dev
+    ```
 
-# App Configuration
-NEXT_PUBLIC_APP_CODE=admin-market
-```
+## Base de Datos
 
-**Obtener las variables:**
-- **Supabase**: Crea un proyecto en [supabase.com](https://supabase.com)
-- **JWT_SECRET**: Genera una clave segura: `openssl rand -base64 32`
-- **HASH_SALT_KEY**: Otro valor aleatorio seguro
-- **RESEND_API_KEY**: Obtén tu clave en [resend.com](https://resend.com)
+El esquema de la base de datos se define y se inicializa a través del script `db/init.sql`. Este script se ejecuta automáticamente al levantar el contenedor de la base de datos con Docker Compose.
 
-## ⚙️ Configuración
+Crea las siguientes tablas:
+-   `users`: Almacena la información de los usuarios y sus roles.
+-   `products`: Catálogo de productos.
+-   `sales`: Registros de las ventas completadas.
+-   `sale_items`: Detalle de los productos incluidos en cada venta.
 
-### Base de Datos
+Incluye un usuario de ejemplo:
+-   **Email**: `admin@amarket.com`
+-   **Rol**: `admin`
 
-El proyecto incluye un archivo `app.sql` con el schema de la base de datos. Ejecuta este script en tu base de datos PostgreSQL:
+## Scripts Disponibles
 
-```sql
--- Ejecutar el contenido de src/app.sql en tu base de datos
-```
+-   `npm run dev`: Inicia el servidor de desarrollo.
+-   `npm run build`: Compila la aplicación para producción.
+-   `npm run start`: Inicia un servidor de producción.
+-   `npm run lint`: Ejecuta el linter de ESLint.
+-   `npm run test`: Ejecuta las pruebas end-to-end con Playwright.
+-   `npm run test:ui`: Abre la UI de Playwright para pruebas interactivas.
 
-### Seguridad
+## Autenticación
 
-Para producción, actualiza estos valores en `next.config.ts`:
-- Restringe `Access-Control-Allow-Origin` a dominios específicos
-- Actualiza `X-Frame-Options` según necesidades
-
-## 📁 Estructura del Proyecto
-
-```
-src/
-├── app/                          # App Router de Next.js
-│   ├── layout.tsx               # Layout principal
-│   ├── page.tsx                 # Página home
-│   ├── login/                   # Página de login
-│   ├── admin/                   # Dashboard admin
-│   ├── almacen/                 # Dashboard almacén
-│   ├── vendedor/                # Dashboard vendedor
-│   ├── auditoria/               # Dashboard auditoría
-│   └── api/                # Rutas API
-│       ├── auth/                # Autenticación
-│       ├── productos/           # Gestión de productos
-│       ├── inventario/          # Gestión de inventario
-│       ├── ventas/              # Gestión de ventas
-│       ├── usuarios-crud/       # CRUD de usuarios
-│       └── ...
-├── components/                   # Componentes React
-│   ├── auth/                    # Componentes de autenticación
-│   ├── crud/                    # Componentes CRUD
-│   ├── dashboard/               # Dashboards por rol
-│   └── ui/                      # Componentes UI reutilizables
-├── lib/                         # Utilidades y funciones
-│   ├── api-client.ts           # Cliente API
-│   ├── auth.ts                 # Lógica de autenticación
-│   ├── crud-operations.ts      # Operaciones CRUD
-│   └── ...
-├── types/                       # Tipos TypeScript
-├── hooks/                       # React Hooks personalizados
-├── constants/                   # Constantes de la app
-└── __tests__/                   # Tests
-
-```
-
-## 📖 Uso
-
-### Desarrollo Local
-
-```bash
-# Iniciar servidor de desarrollo
-pnpm dev
-
-# Con modo debug (Node Inspector)
-pnpm dev:debug
-
-# Acceder a la app
-# http://localhost:3000
-```
-
-### Build para Producción
-
-```bash
-# Construir la app
-pnpm build
-
-# Iniciar servidor de producción
-pnpm start
-
-# La app estará disponible en http://localhost:3000
-```
-
-### Linting
-
-```bash
-# Ejecutar ESLint
-pnpm lint
-```
-
-## 🔌 API Endpoints
-
-### Autenticación
-- `POST /api/auth/login` - Login
-- `POST /api/auth/register` - Registro de usuario
-- `POST /api/auth/logout` - Logout
-- `POST /api/auth/refresh` - Refrescar JWT
-- `POST /api/auth/reset-password` - Recuperar contraseña
-- `GET /api/auth/user` - Obtener usuario actual
-- `POST /api/auth/google-login` - Login con Google
-
-### Productos
-- `GET /api/productos` - Listar productos
-- `POST /api/productos-crud` - Crear producto
-- `PUT /api/productos-crud/[id]` - Actualizar producto
-- `DELETE /api/productos-crud/[id]` - Eliminar producto
-
-### Inventario
-- `GET /api/inventario` - Estado del inventario
-- `POST /api/movimientos-inventario` - Registrar movimiento
-
-### Ventas
-- `GET /api/ventas` - Listar ventas
-- `POST /api/ventas-crud` - Crear venta
-- `GET /api/venta-detalles` - Detalles de ventas
-
-### Usuarios
-- `GET /api/usuarios-crud` - Listar usuarios
-- `POST /api/add-user` - Agregar usuario
-- `PUT /api/usuarios-crud/[id]` - Actualizar usuario
-
-### Auditoría
-- `GET /api/auditoria` - Historial de auditoría
-
-## 👥 Roles y Permisos
-
-| Rol | Descripción | Permisos |
-|-----|-------------|----------|
-| **Administrador** | Acceso total al sistema | Todas las funciones |
-| **Vendedor** | Gestión de ventas | Crear/ver ventas, productos |
-| **Almacén** | Control de inventario | Gestión de stock, movimientos |
-| **Auditor** | Revisión del sistema | Ver auditoría, reportes |
-
-## 💻 Desarrollo
-
-### Crear un nuevo endpoint API
-
-```typescript
-// src/app/api/mi-ruta/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-
-export async function GET(request: NextRequest) {
-  try {
-    // Lógica del endpoint
-    return NextResponse.json({ data: 'respuesta' });
-  } catch (error) {
-    return NextResponse.json({ error: 'mensaje' }, { status: 500 });
-  }
-}
-```
-
-### Crear un nuevo componente
-
-```typescript
-// src/components/MiComponente.tsx
-'use client';
-
-import React from 'react';
-
-export default function MiComponente() {
-  return (
-    <div className="flex items-center justify-center">
-      <h1>Mi Componente</h1>
-    </div>
-  );
-}
-```
-
-### Usar hooks personalizados
-
-```typescript
-import { useToast } from '@/hooks/use-toast';
-
-function MiComponente() {
-  const { toast } = useToast();
-  
-  const handleClick = () => {
-    toast({
-      title: 'Éxito',
-      description: 'Operación completada',
-    });
-  };
-  
-  return <button onClick={handleClick}>Mostrar Toast</button>;
-}
-```
-
-## 🧪 Testing
-
-```bash
-# Ejecutar tests
-npm test
-
-# Tests disponibles en: src/__tests__/
-```
-
-## 📦 Tecnologías
-
-### Frontend
-- **Next.js 15.2.4** - Framework React
-- **React 19** - Librería UI
-- **TypeScript 5** - Tipado estático
-- **Tailwind CSS 4** - Estilos
-- **Radix UI** - Componentes base
-
-### Backend & API
-- **Next.js API Routes** - Backend
-- **PostgreSQL** - Base de datos
-- **Supabase** - BaaS
-- **PostgREST** - API automática
-- **JWT** - Autenticación
-- **bcryptjs** - Hash de contraseñas
-
-### Herramientas
-- **ESLint** - Linting
-- **Zod** - Validación de esquemas
-- **React Hook Form** - Gestión de formularios
-- **Sonner** - Notificaciones
-- **Jose** - JWT
-- **Resend** - Envío de emails
-
-## 📝 Variables de Entorno
-
-```env
-POSTGREST_URL          # URL de PostgREST
-POSTGREST_SCHEMA       # Schema de la BD (por defecto: public)
-POSTGREST_API_KEY      # Clave API de PostgREST
-JWT_SECRET             # Clave secreta para JWT
-SCHEMA_ADMIN_USER      # Usuario admin por defecto
-HASH_SALT_KEY          # Salt para hash de contraseñas
-RESEND_API_KEY         # Clave API de Resend para emails
-NEXT_PUBLIC_APP_CODE   # Código de la aplicación
-```
-
-## 🔒 Seguridad
-
-- ✅ Autenticación con JWT
-- ✅ Validación de entrada con Zod
-- ✅ Protección contra CORS
-- ✅ Hashing de contraseñas con bcryptjs
-- ✅ Headers de seguridad configurados
-- ✅ Variables sensibles en `.env.local`
-
-## 🤝 Contribuir
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
-## 📄 Licencia
-
-Este proyecto es privado y propiedad de Ad Market.
-
-## 📞 Soporte
-
-Para reportar bugs o solicitar features, abre un issue en el repositorio.
-
----
-
-**Última actualización:** Noviembre 2025  
-**Versión:** 0.1.0
+El sistema de autenticación utiliza JSON Web Tokens (JWT) almacenados en una cookie (`access_token`). Un middleware (`src/middleware.ts`) protege las rutas sensibles y redirige a los usuarios no autenticados a la página de login.

@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: amarket
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d amarket" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # Base de datos
+      DATABASE_URL: "postgresql://user:password@db:5432/amarket"
+      
+      # Autenticación JWT
+      JWT_SECRET: "change-this-to-a-secure-random-string-in-production"
+      SCHEMA_ADMIN_USER: "admin"
+      
+      # Hash para contraseñas
+      HASH_SALT_KEY: "change-this-to-a-secure-salt-key-in-production"
+      
+      # Email (Resend) - Opcional
+      # RESEND_API_KEY: "your-resend-api-key"
+      
+      # Google OAuth - Opcional
+      # GOOGLE_CLIENT_ID: "your-google-client-id"
+      # GOOGLE_CLIENT_SECRET: "your-google-client-secret"
+      
+      # Configuración de la app
+      NEXT_PUBLIC_APP_NAME: "A-Market"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+      
+      # Next.js
+      NODE_ENV: "production"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

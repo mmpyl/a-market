@@ -31,7 +31,9 @@ export const GET = requestMiddleware(async (request, context) => {
 
   return createSuccessResponse({
     data: usuarios,
-    pagination: { limit, offset, total }
+    limit,
+    offset,
+    total
   });
 }, true);
 
